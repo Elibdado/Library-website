@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="Author" content="Allan James Corpuz">
+    <title>E-Libdado</title>
+    <link rel="icon" href="https://scontent.fmnl9-2.fna.fbcdn.net/v/t31.18172-8/1040393_501426546597592_1579230413_o.jpg?_nc_cat=103&ccb=1-7&_nc_sid=c2f564&_nc_eui2=AeE-jSAKFlHtrCJmW9xsPqdF6X4dV8t_UZvpfh1Xy39Rm5Z-sPahLmlGirYSlOdYynun1aWc0vAltZnhSDBfYsow&_nc_ohc=8dqKAOidyV4AX9TSSY6&_nc_ht=scontent.fmnl9-2.fna&oh=00_AfB5-FT-_3IjP7E5D8Yu4U2iKRMIdZ_j4AAbIA7q9E5XGA&oe=65517019" type="image/x-icon">
+    <style>
+       body {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 110vh;
+  flex-direction: column;
+
+  background-image:
+    url('logopdmhs.jpg'),
+    url('Dado background.jpg');
+
+    
+
+  background-size: 
+    40px 40px,
+    1600px 1550px;
+
+  background-position: 
+    top left,  
+    cover;  
+
+  background-repeat: 
+    no-repeat,
+    no-repeat;
+
+  background-color: rgb(130, 240, 239);
+  background-blend-mode:
+   darken,
+   darken;
+}
+ 
+
+#searchResults li {
+    padding: 10px;
+    border: 1px solid #ccc;
+    transition: transform 0.3s; /*basta transition to */
+}
+
+#searchResults li:hover {
+    transform: scale(1.05); /* napapalaki niya yung search result */
+}
+
+
+#biblioGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* dalawang column */
+    gap: 20px; /* space ng row at column */
+    padding: 10px;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#biblioGrid div {
+    padding: 5px;
+}
+
+.bold {
+            font-weight: bolder;
+        }
+
+      .search-input {
+
+         width: 300px;     
+         height: 30px;     
+         padding: 6px 9px;
+         font-size: 16px;  
+         border: solid;
+         border-radius: 22px;
+         color: rgb(0, 0, 0);
+         
+}
+       .search-btn:hover {
+        background-color: lightgrey;
+       }
+
+      .search-btn {
+        width: 100px;     
+         height: 35px;     
+         font-size: 16px;  
+         
+         border-radius: 22px;
+         flex-grow: 1;
+         cursor: pointer;     
+         color:black;
+         border: solid;
+
+        
+        }
+
+        .navbar {
+            position: absolute;
+            top: 0px;
+            right: 10px;
+            display: flex;
+            gap: 3.5px; 
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: black; 
+            padding: 5px 10px;
+            border: 1px solid black;
+            border-radius: 22px; 
+            transition: background-color 0.2s;
+        }
+
+        .navbar a:hover {
+            background-color: #ccc; 
+        }
+
+        #definition-box, #admin-panel {
+            margin-top: 100px;
+        }
+
+        #admin-panel {
+            display: none;
+        }
+    
+        
+    </style>
+</head>
+
+
+    
+    <body>
+       
+        <div class="navbar">
+            <a href="">Home</a>
+            <a href="https://www.facebook.com/pdmhs.tapat/">Contact Us</a>
+        </div>
+    <div class="h1">
+        <h1><strong>E-Libdado</strong></h1>
+    </div>
+        <div id="homePage">
+            <form id="searchForm" class="search-container">
+                <input type="text" id="search" placeholder="Search for a book..." class="search-input">
+                <input type="submit" value="Search" class="search-btn">
+            </form>
+        </div>
+    
+        <div id="definition-box">
+            <!-- dito mag appear yung definitions -->
+        </div>
+    
+        <div id="resultsPage" style="display:none;">
+            <ul id="searchResults"></ul>
+            <div id="definition-box">
+                <!-- dito mag appear yung bibliographic data -->
+            </div>
+            
+        </div>
+        
+
+    <script>
+       document.getElementById('searchForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    let lastQuery = document.getElementById('search').value.trim().toLowerCase(); // Trim leading/trailing white spaces
+
+    // If the search bar is empty, do nothing and return
+    if (!lastQuery) {
+        return;
+    }
+
+    let bookResults = searchForBooks(lastQuery);
+
+    if (bookResults.length > 0) {
+        displayResults(bookResults);
+    } else {
+        searchDefinition();
+    }
+});
+    const definitions = {
+        "ALLAN JAMES CORPUZ" : {
+            text: "<b>The one who coded this e-library<b/>",
+            link : null
+         },
+         "ALLAN CORPUZ" : {
+            text: "<b>The one who coded this e-library</b>",
+            link : null
+         },
+        "ALDRIN CORTEZ" : {
+            text: "<b>Adviser of Grade 12 - Bronze</b>",
+            link: null,
+            
+        },
+        "HTML": {
+            text: "<b>HTML, which stands for HyperText Markup Language, is the standard markup language for documents designed to be displayed in a web browser.</b>",
+            link: null
+        },
+        "PDMHS": {
+            text: "<b>PDMHS, which stands for President Diosdado Macapagal High School.</b>",
+            link: null
+        },
+        "MR.NOLITO ESTILES": {
+            text: "<b>Principal of President Diosdado Macapagl High School.</b>",
+            link: null
+        },
+        "MR. NOLITO ESTILES": {
+            text: "<b>Principal of President Diosdado Macapagl High School.</B>",
+            link: null
+        },"NOLITO ESTILES": {
+            text: "<b>Principal of President Diosdado Macapagl High School.</b>",
+            link: null
+        },
+        "LORY ALCOSABA": {
+            text: "<b>Research adviser of grade 12 - Bronze.</b>",
+            link: null
+        },
+
+        // Mga libro online yung mga pwede kuhaan ng info.
+
+        "LEVEL OF EDUCATION": {
+            text: "",
+            link: "https://www.sciencedirect.com/science/article/abs/pii/104727979390012S"
+        },
+        "48 RULE OF POWER": {
+            text: "48 Laws of Power is a book by Robert Greene. The book is a bestseller and shares tips on power dynamics. Click to read more.",
+            link: "https://www.penguinrandomhouse.com/books/330912/the-48-laws-of-power-special-power-edition-by-robert-greene/"
+        
+            // mga definition ng mga word
+
+        },
+        "XENOPHOBIA" : {
+            text: "<b>A strong fear, dislike, or prejudice against people from other countries or cultures. <br> For example - he was accused of xenophobia in his work Unlike the more politicized phobias, xenophobia and classism often go unchecked.</b>",
+            link: null
+        },
+        "YONDER" : {
+            text: "<b>At a distance, usually used to refer to a place or direction.</b>",
+            link: null
+        },
+        "ZEALOUS" : {
+            text: "<b>Filled with enthusiastic and passionate devotion or fervor.</b>",
+            link: null
+        },
+        "APLOMB" : {
+            text: "<b>Self-confidence and composure, especially in challenging situations.</b>",
+            link: null
+        },
+        "BELIGERENT" : {
+            text: "<b>Hostile, aggressive, or inclined to fight or argue.</b>",
+            link: null
+        },
+        "CAPITULATE" : {
+            text: "<b>To surrender or give in to an opponent or demand.</b>" ,
+            link: null      
+         },
+         "DISPARATE" : {
+            text: "<b>Essentially different or distinct in kind; not allowing for comparison.</b>",
+            link : null
+         },
+         "DISPARATE" : {
+            text: "<b>Essentially different or distinct in kind; not allowing for comparison.</b>",
+            link : null
+         },
+         "EUPHEMISM" : {
+            text: "<b>A milder or more indirect word or phrase used in place of a more direct or harsh one to make something less offensive or unpleasant.</b>",
+            link : null
+         },
+         "DISPARATE" : {
+            text: "<b>Essentially different or distinct in kind; not allowing for comparison.</b>",
+            link : null
+         },
+         "FACETIOUS" : {
+            text: "<b>Treating serious issues with deliberately inappropriate humor or sarcasm</b>",
+            link : null
+         },
+         "GRAGARIOUS" : {
+            text: "<b>Essentially different or distinct in kind; not allowing for comparison.</b>",
+            link : null
+         },
+         "HARANGUE" : {
+            text: "<b>A lengthy, aggressive, and critical speech or lecture.</b>",
+            link : null
+         },
+         "INCORRIGIBLE" : {
+            text: "<b>Impossible to correct, reform, or control.</b>",
+            link : null
+         },
+         "JUXTAPOSITION" : {
+            text: "<b>The act or placement of two things (usually abstract concepts) near each other for comparison or contrast.</b>",
+            link : null
+         },
+         "KINETIC" : {
+            text: "<b>Relating to or resulting from motion; dynamic or active.</b>",
+            link : null
+         },
+         "LANGUID" : {
+            text: "<b>Lacking energy or vitality; slow and relaxed.</b>",
+            link : null
+         },
+         "MELLIFLUOUS" : {
+            text: "<b>Flowing smoothly and sweetly, often used to describe sounds, voices, or music.</b>",
+            link : null
+         },
+         "NEFARIOUS" : {
+            text: "<b>Extremely wicked, villainous, or evil.</b>",
+            link : null
+         },
+         "OBDURATE" : {
+            text: "<b>Stubbornly refusing to change one's opinion or course of action.</b>",
+            link : null
+         },
+         "PARAGON" : {
+            text: "<b>A perfect example of a particular quality or trait; a model of excellence.</b>",
+            link : null
+         },
+         "QUOTIDIAN" : {
+            text: "<b>Relating to or characteristic of everyday life; ordinary or commonplace.</b>",
+            link : null
+         },
+         "RUMBUNCTIOUS" : {
+            text: "<b>Noisy, rowdy, or disorderly in a playful or high-spirited way.</b>",
+            link : null
+         },
+         "SYCHOPHANT" : {
+            text: "<b>A person who acts obsequiously towards someone important to gain advantage; a flatterer or yes-man</b>",
+            link : null
+         },
+         "UMBRAGE" : {
+            text: "<b>Offense or resentment, often arising from a perceived insult or slight.</b>",
+            link : null
+         },
+         "WISTFUL" : {
+            text: "<b>Longing or yearning for something, often with a sense of nostalgia or melancholy.",
+            link : null
+         },
+         "Vehement" : {
+            text: "Showing strong feeling, intense emotion, or conviction.</b>",
+            link : null
+         },
+         "UBIQUITOUS" : {
+            text: "<b>Present or found everywhere; widespread.</b>",
+            link : null
+         },
+         "TREPIDATION" : {
+            text: "<b>A feeling of fear, apprehension, or anxiety about something that may happen.</b>",
+            link : null
+         },
+         "SERENDIPITY" : {
+            text: "<b>The occurrence of fortunate events by chance, often when looking for something else.</b>",
+            link : null
+         },
+         "RESILIENT" : {
+            text: "<b>Able to recover or bounce back from difficult situations or adversity.</b>",
+            link : null
+         },
+         "QUIXOTIC" : {
+            text: "<b>Extremely idealistic and unrealistic; often referring to impractical pursuits.</b>",
+            link : null
+         },
+         "ABSTAIN" : {
+            text: "<b>To voluntarily refrain from something.</b>",
+            link : null
+         },
+         "ELOQUENT" : {
+            text: "<b>Expressing oneself fluently and persuasively.</b>",
+            link : null
+         },
+         "REITERATE" : {
+            text: "<b>To say or do something again, often for emphasis.</b>",
+            link : null
+         },
+         "BENEVOLENT" : {
+            text: "<b>Showing kindness and goodwill.</b>",
+            link : null
+         },
+         "PERCEIVE" : {
+            text: "<b>To become aware of or understand through the senses.</b>",
+            link : null
+         },
+         "OBLITERATE" : {
+            text: "<b>To destroy or erase completely.</b>",
+            link : null
+         },
+         "BLUE LAW" : {
+            text: "<b>One of many strict laws regulating morals and conduct in colonial New England.</b>",
+            link : null
+         },
+         "METICULOUS" : {
+            text: "<b>is an adjective that describes a person or process characterized by great attention to detail and thoroughness. When someone is described as meticulous, it means they are very careful and precise in their work, paying close attention to every small detail to ensure accuracy and completeness.</b>",
+            link: null
+        },
+    }
+    
+    let books = [
+    {
+        title: "Biology ll",
+        author: "Henry Cuggar et. al",
+        controlNumber: "" ,
+        ISBN: "",
+        physicalLocation: "",  
+        digitalCopy: "",
+        keywords: ["life", "organisms", "science"]
+    },
+    {
+        title: "Physical science",
+        author: "Ken Dobson et. al",
+        controlNumber: "294",
+        ISBN: "",
+        physicalLocation: "" ,
+        digitalCopy: "PDMHS library",
+        keywords: ["Physics", "chemistry",""]
+    },
+    {
+        title: "Environmental  science",
+        author: "karen arms",
+        controlNumber: "398",
+        ISBN: "",
+        physicalLocation: "" ,
+        digitalCopy: "",
+        keywords: ["Biodiversity", "Ecosystem", "Pollution", "Climate change"]
+    },
+    {
+        title: "Introduction to earth  science",
+        author: "thompson, turk",
+        controlNumber: "389",
+        ISBN: "",
+        physicalLocation: "" ,
+        digitalCopy: "",
+        keywords: ["Biodiversity", "Ecosystem", "Pollution", "Climate change"]
+    },
+    // math
+    {
+        title: "The World book of math power",
+        author: "",
+        controlNumber: "" ,
+        ISBN: "",
+        physicalLocation: "",  
+        digitalCopy: "",
+        keywords: ["math", "arithmetic", "numbers", "plus", "multiplication", "addition", "subtraction", "division"]
+    },
+    {
+        title: "Geometry lll",
+        author: "Fernando B. Orines et. Al",
+        controlNumber: "365" ,
+        ISBN: "",
+        physicalLocation: "",  
+        digitalCopy: "",
+        keywords: ["math", "arithmetic", "numbers", "plus", "multiplication", "addition", "subtraction", "division"]
+    },
+    {
+        title: "Algebra l",
+        author: "larson, borswell, stiff",
+        controlNumber: "351" ,
+        ISBN: "",
+        physicalLocation: "",  
+        digitalCopy: "",
+        keywords: ["math", "arithmetic", "numbers", "plus", "multiplication", "addition", "subtraction", "division"]
+    },
+    {
+        title: "Mathematics course 1 ",
+        author: "",
+        controlNumber: "378" ,
+        ISBN: "",
+        physicalLocation: "PDMHS LIBRARY",  
+        digitalCopy: "",
+        keywords: ["math", "arithmetic", "numbers", "plus", "multiplication", "addition", "subtraction", "division"]
+    },
+];
+
+    // Press ALT + A to display the admin panel
+    document.addEventListener('keydown', function(event) {
+    if (event.altKey && event.key === 'A') {
+        document.getElementById("admin-panel").style.display = "block";
+    }
+});
+
+function displayResults(books) {
+    const resultsPage = document.getElementById('resultsPage');
+    const searchResults = document.getElementById('searchResults');
+    const searchInput = document.getElementById('search'); // Assuming 'search' is the id of your search input
+
+    searchResults.innerHTML = ''; // Clear any previous results
+
+    books.forEach(book => {
+        const bookEl = document.createElement('li');
+        const bookTitle = document.createElement('a');
+        bookTitle.href = '#';
+        bookTitle.textContent = book.title;
+
+        // Add click event to display bibliographic data for the clicked book
+        bookTitle.addEventListener('click', function(event) {
+            event.preventDefault(); // Prevent default link behavior
+            displayBibliographicDetails(book);
+        });
+
+        bookEl.appendChild(bookTitle);
+        searchResults.appendChild(bookEl);
+    });
+
+    resultsPage.style.display = 'block';
+    searchInput.value = ''; // Clear the search input
+}
+
+function displayBibliographicDetails(book) {
+    const detailsEl = document.createElement('div');
+    const biblioGrid = document.createElement('div');
+    biblioGrid.id = 'biblioGrid';
+
+    biblioGrid.innerHTML = `
+        <div><strong>Title:</strong></div>
+        <div>${book.title}</div>
+        <div><strong>Author:</strong></div>
+        <div>${book.author ? book.author : 'N/A'}</div>
+        <div><strong>Control Number:</strong></div>
+        <div>${book.controlNumber ? book.controlNumber : 'N/A'}</div>
+        <div><strong>ISBN:</strong></div>
+        <div>${book.ISBN ? book.ISBN : 'N/A'}</div>
+        <div><strong>Physical Location:</strong></div>
+        <div>${book.physicalLocation ? book.physicalLocation : 'N/A'}</div>
+        <div><strong>Digital Copy:</strong></div>
+        <div>${book.digitalCopy ? book.digitalCopy : 'N/A'}</div>
+    `;
+
+    detailsEl.appendChild(biblioGrid);
+    detailsEl.innerHTML += '<button onclick="backToSearch()">Back</button>';
+
+    const searchResults = document.getElementById('searchResults');
+    searchResults.innerHTML = ''; // Clear current results
+    searchResults.appendChild(detailsEl); // Display the bibliographic details
+}
+
+
+function searchDefinition() {
+    const searchTerm = document.getElementById('search').value.trim().toUpperCase(); // Convert to uppercase for comparison
+    const definitionData = definitions[searchTerm];
+    const definitionBox = document.getElementById('definition-box');
+
+    if (definitionData) {
+        if (definitionData.link) {
+            // Directly redirect to the link associated with the term
+            window.location.href = definitionData.link;
+        } else {
+            definitionBox.innerHTML = definitionData.text;
+            definitionBox.style.display = 'block';
+        }
+    } else {
+        definitionBox.innerHTML = `Sorry, no definition or book found for "${searchTerm}".`;
+        definitionBox.style.display = 'block';
+    }
+}
+
+
+function backToSearch() {
+    document.getElementById('resultsPage').style.display = 'none';
+    document.getElementById('homePage').style.display = 'block';
+}
+
+function searchForBooks(query) {
+    const searchResults = document.getElementById('searchResults');
+    const definitionBox = document.getElementById('definition-box');
+    searchResults.innerHTML = ''; // Clear previous search results
+    definitionBox.innerHTML = ''; // Clear previous definition
+
+    const bookResults = books.filter(book => 
+        book.title.toLowerCase().includes(query) || 
+        (book.keywords && book.keywords.some(keyword => keyword.toLowerCase().includes(query)))
+    );
+
+    if (bookResults.length > 0) {
+        displayResults(bookResults);
+    } else {
+        searchDefinition(query);
+    }
+}
+
+
+function searchDefinition() {
+    const searchTerm = document.getElementById('search').value.trim().toUpperCase(); // Convert to uppercase for comparison
+    const definitionData = definitions[searchTerm];
+    const definitionBox = document.getElementById('definition-box');
+
+    if (definitionData) {
+        if (definitionData.link) {
+            // Directly redirect to the link associated with the term
+            window.location.href = definitionData.link;
+        } else {
+            definitionBox.innerHTML = definitionData.text;
+            definitionBox.style.display = 'block';
+        }
+    } else {
+        definitionBox.innerHTML = `Sorry, no definition or book found for "${searchTerm}".`;
+        definitionBox.style.display = 'block';
+    }
+}
+
+
+function addDefinition() {
+    const word = document.getElementById("word-input").value.trim().toUpperCase();
+    const definition = document.getElementById("definition-input").value.trim();
+
+    if (word && definition) {
+        definitions[word] = {
+            text: definition,
+            link: null
+        };
+        document.getElementById("definition-box").innerHTML = `Definition for <strong>${word}</strong> has been added successfully.`;
+        document.getElementById("word-input").value = '';
+        document.getElementById("definition-input").value = '';
+    } else {
+        document.getElementById("definition-box").innerHTML = "Please provide both the word and its definition.";
+    }
+}
+
+
+</script>
+
+</body>
+
+</html>
+
+    
+
+
+
